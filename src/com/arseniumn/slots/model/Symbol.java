@@ -2,9 +2,10 @@ package com.arseniumn.slots.model;
 import java.util.HashMap;
 
 public class Symbol {
+	
     private String name,type;
     public static HashMap<String,Integer> indices = new HashMap<String,Integer>();
-	private int id;
+    private int id;
 
     public Symbol(int anId, String aName, String aType){
     	this.id = anId;
@@ -38,7 +39,5 @@ public class Symbol {
 
     public void setId(int id) {
 	this.id = id;
-    }
-
-    
+    } 
 }
