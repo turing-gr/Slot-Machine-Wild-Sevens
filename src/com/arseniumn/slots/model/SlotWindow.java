@@ -9,28 +9,29 @@ public class SlotWindow {
     private int reels,rows,totalbet,line;
     private Symbol[][] slot_window;
     private int[] reel_stops;
-    private int[][] paytable ={{0,0,60,200,400},
-    						   {0,0,40,80,240},
-							   {0,8,20,60,120},
-							   {0,4,6,40,80},
-							   {0,2,4,20,40},
-							   {0,2,4,20,40},							   
-							   {0,2,4,40,800}};  
+    private int[][] paytable = {
+	    		         {0,0,60,200,400},
+			         {0,0,40,80,240},
+			         {0,8,20,60,120},
+		                 {0,4,6,40,80},
+			         {0,2,4,20,40},
+		                 {0,2,4,20,40},							   
+		                 {0,2,4,40,800}
+			       };  
     
-    private int[][] paylines = {{0,0,0,0,0},		
-								{1,1,1,1,1},
-								{2,2,2,2,2},
-								{0,1,2,1,0},		
-								{2,1,0,1,2},
-								{0,0,1,0,0},
-								{2,2,1,2,2},
-							    {1,0,0,0,1},
-							    {1,2,2,2,1},
-							    {2,1,1,1,2}};
-    
+    private int[][] paylines = {
+	    		         {0,0,0,0,0},		
+				 {1,1,1,1,1},
+				 {2,2,2,2,2},
+				 {0,1,2,1,0},		
+				 {2,1,0,1,2},
+				 {0,0,1,0,0},
+				 {2,2,1,2,2},
+				 {1,0,0,0,1},
+				 {1,2,2,2,1},
+				 {2,1,1,1,2}
+    			       };
     private ArrayList<Coordinates> coords = new ArrayList<Coordinates>(); 
-    
-    //Hold the reference to wild symbol
     private Symbol wild_symbol;
     
     public SlotWindow(int nReels, int nRows, int totalBet){
@@ -43,22 +44,20 @@ public class SlotWindow {
 
     public void generateStops(SlotMachine slotMachine){
         Random random = new Random();     
-        //Generate the random stops
         for(int i=0; i<reel_stops.length; i++){
             reel_stops[i] = random.nextInt(slotMachine.getSlotMachine().get(i).getReels().size());
         }      
-        //Try to not get stops that make our slot window get out of bounds coordinates
         for(int i=0; i<this.rows; i++) {
-			for(int j=0; j<this.reel_stops.length; j++) {	
-				if((this.reel_stops[j]+i)==slotMachine.getSlotMachine().get(i).getReels().size()) {
-					this.reel_stops[j] = -1;
-					slot_window[i][j] = slotMachine.getSlotMachine().get(j).getSymbolFromReel(reel_stops[j]+i);		
-				}
-				else {
-					slot_window[i][j] = slotMachine.getSlotMachine().get(j).getSymbolFromReel(reel_stops[j]+i);		
-				}
+		for(int j=0; j<this.reel_stops.length; j++) {	
+			if((this.reel_stops[j]+i)==slotMachine.getSlotMachine().get(i).getReels().size()) {
+				this.reel_stops[j] = -1;
+				slot_window[i][j] = slotMachine.getSlotMachine().get(j).getSymbolFromReel(reel_stops[j]+i);		
+			}
+			else {
+				slot_window[i][j] = slotMachine.getSlotMachine().get(j).getSymbolFromReel(reel_stops[j]+i);		
 			}
 		}
+	}
     }
 
     public double runSimulation(int coins){
@@ -74,18 +73,13 @@ public class SlotWindow {
     	}
     	
     	//Screen rule has no paylines, just find the prize and multiply it with totalbet and the n out of 5 combination payment
-		double screen_rule_prize = getScreenRuleCombinationPrize();
-    	
-    	//Clear arraylist to clear old coordinates of wild symbols
+	double screen_rule_prize = getScreenRuleCombinationPrize();
     	coords.clear();
-    	
-    	double reward = line_rule_prize+screen_rule_prize;
-    	
+    	double reward = line_rule_prize+screen_rule_prize;   	
     	if(coins!=-1) {
     		WindowPrinter printer = new WindowPrinter();
     		printer.printAll(slot_window, totalbet, reward, (int) (coins+reward));
     	}
-
     	return (reward);
     }
 
