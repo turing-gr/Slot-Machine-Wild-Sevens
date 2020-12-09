@@ -3,7 +3,8 @@ package com.arseniumn.slots.model;
 public class Coordinates {
 
 	private int x,y;
-	public Coordinates(int y, int x) {
+	
+	public Coordinates(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}

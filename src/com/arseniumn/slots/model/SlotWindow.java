@@ -6,197 +6,171 @@ import com.arseniumn.slots.ui.WindowPrinter;
 
 public class SlotWindow {
 
-    private int reels,rows,totalbet,line;
-    private Symbol[][] slot_window;
-    private int[] reel_stops;
-    private int[][] paytable = {
-	    		         {0,0,60,200,400},
-			         {0,0,40,80,240},
-			         {0,8,20,60,120},
-		                 {0,4,6,40,80},
-			         {0,2,4,20,40},
-		                 {0,2,4,20,40},							   
-		                 {0,2,4,40,800}
-			       };  
-    
-    private int[][] paylines = {
+    private int m, n, totalBet, lineBet;
+    private Symbol[][] W;
+    private int[] RS;
+    private int[][] P = {
+	    		         {0,2,4,20,40},
+	    		         {0,2,4,20,40},
+			         	 {0,0,5,75,150},
+			         	 {0,0,5,75,150},
+		                 {0,0,12,120,200},
+		                 {0,0,12,120,200},
+		                 {0,5,50,500,1000}
+			       };
+    private int[][] L = {
 	    		         {0,0,0,0,0},		
-				 {1,1,1,1,1},
-				 {2,2,2,2,2},
-				 {0,1,2,1,0},		
-				 {2,1,0,1,2},
-				 {0,0,1,0,0},
-				 {2,2,1,2,2},
-				 {1,0,0,0,1},
-				 {1,2,2,2,1},
-				 {2,1,1,1,2}
+	    		         {1,1,1,1,1},
+						 {2,2,2,2,2},
+						 {0,1,2,1,0},		
+						 {2,1,0,1,2},
+						 {0,0,1,0,0},
+						 {2,2,1,2,2},
+						 {1,0,0,0,1},
+						 {1,2,2,2,1},
+						 {2,1,1,1,2}
     			       };
     private ArrayList<Coordinates> coords = new ArrayList<Coordinates>(); 
-    private Symbol wild_symbol;
+    private Random random = new Random();     
+    private Symbol wild;
     
-    public SlotWindow(int nReels, int nRows, int totalBet){
-        this.reels = nReels;
-        this.rows = nRows;
-        this.totalbet = totalBet;
-        slot_window = new Symbol[3][5];
-        reel_stops = new int[]{0,0,0,0,0};        
+    public SlotWindow(int nReels, int nRows, int totalBet, int aLineBet){
+    	
+    	// The m rows
+        this.m = nRows;
+
+        // The n columns-reels
+        this.n = nReels;
+        
+        // The totalbet
+        this.totalBet = totalBet;
+        
+        // The linebet
+        this.lineBet = aLineBet;
+        
+        // The 3x5 random window instance
+        W = new Symbol[3][5];
+        
+        // The Reels' Stops
+        RS = new int[]{0,0,0,0,0};        
     }
 
     public void generateStops(SlotMachine slotMachine){
-        Random random = new Random();     
-        for(int i=0; i<reel_stops.length; i++){
-            reel_stops[i] = random.nextInt(slotMachine.getSlotMachine().get(i).getReels().size());
-        }      
-        for(int i=0; i<this.rows; i++) {
-		for(int j=0; j<this.reel_stops.length; j++) {	
-			if((this.reel_stops[j]+i)==slotMachine.getSlotMachine().get(i).getReels().size()) {
-				this.reel_stops[j] = -1;
-				slot_window[i][j] = slotMachine.getSlotMachine().get(j).getSymbolFromReel(reel_stops[j]+i);		
+    	
+    	// An auxiliary variable that holds the current reel's (column) size
+    	int current_size = 0;
+    	
+    	// Generate the random stops
+        for(int i=0; i<RS.length; i++) {
+        	current_size = slotMachine.getSlotMachine().get(i).getReel().size();
+            RS[i] = random.nextInt(current_size);  
+        }
+        
+        // Put the symbols from reels with the stops from RS matrix in window instance one
+        for(int i=0; i<this.m; i++) {
+			for(int j=0; j<this.RS.length; j++) {
+				int stopIndexElement = this.RS[j];
+				int size = slotMachine.getSlotMachine().get(j).getReel().size();
+				W[i][j] = slotMachine.getSlotMachine().get(j).getSymbolFromReel((stopIndexElement+i)%size);
 			}
-			else {
-				slot_window[i][j] = slotMachine.getSlotMachine().get(j).getSymbolFromReel(reel_stops[j]+i);		
-			}
-		}
-	}
+        }
     }
 
     public double runSimulation(int coins){
     	double line_rule_prize = 0;
-    	for(line=0; line<paylines.length; line++) {
-    		
-    		//Get the payment for each payline
-    		line_rule_prize += getOnLineCombinationPrize();  		
-    		
-    		//For each payline we need to get back the wilds to its indices, that's why we created the Coordinates
-    		//Back from substitution - flag = false
-    		WildTransformation(false);
-    	}
     	
-    	//Screen rule has no paylines, just find the prize and multiply it with totalbet and the n out of 5 combination payment
-	double screen_rule_prize = getScreenRuleCombinationPrize();
+    	// Save the wild coordinates in window instance
+    	saveWildCoordinates();
+    	    		
+    	// Get the payment for each payline
+    	line_rule_prize += getOnPaylinePrize();  		
+    	
+    	// Screen rule has no paylines, just find the prize and multiply it with totalbet and the n out of 5 combination payment
+    	double screen_rule_prize = getScreenRuleCombinationPrize();
     	coords.clear();
-    	double reward = line_rule_prize+screen_rule_prize;   	
+    	double reward = line_rule_prize+screen_rule_prize;
     	if(coins!=-1) {
     		WindowPrinter printer = new WindowPrinter();
-    		printer.printAll(slot_window, totalbet, reward, (int) (coins+reward));
+    		printer.printAll(W, totalBet, reward, (int) (coins+reward));
     	}
-    	return (reward);
+    	return reward;
     }
 
-
-	private double getOnLineCombinationPrize() {
-    	int combination = 0;
-    	double line_rule_prize=0;
-    	
-    	//Look for wild and substitute e.g. symbol_01 - wild - wild - symbol_02 - symbol_03 
-    	//becomes symbol_01 - symbol_01 - symbol_01 - symbol_02 - symbol_03
-    	if(isThereWild()) {
-    		
-    		//Find the coordinations of each wild symbol
-    		findCoordsOfSymbols();
-    		
-    		//Substitution - true flag
-    		WildTransformation(true);
-    	}
-
-    	//Search for n out of 5 e.g. 4-symbol_01
-		//5 out of 5
-		if(slot_window[paylines[line][0]][0].getName().equalsIgnoreCase(slot_window[paylines[line][1]][1].getName()) && slot_window[paylines[line][1]][1]==slot_window[paylines[line][2]][2] && slot_window[paylines[line][2]][2]==slot_window[paylines[line][3]][3] && slot_window[paylines[line][3]][3]==slot_window[paylines[line][4]][4]) {
-			combination = 5;
-		}
-		else if(slot_window[paylines[line][0]][0].getName().equalsIgnoreCase(slot_window[paylines[line][1]][1].getName()) && slot_window[paylines[line][1]][1]==slot_window[paylines[line][2]][2] && slot_window[paylines[line][2]][2]==slot_window[paylines[line][3]][3]){
-			combination = 4;
-		}
-		else if(slot_window[paylines[line][0]][0].getName().equalsIgnoreCase(slot_window[paylines[line][1]][1].getName()) && slot_window[paylines[line][1]][1]==slot_window[paylines[line][2]][2]){
-			combination = 3;
-		}
-		else if(slot_window[paylines[line][0]][0].getName().equalsIgnoreCase(slot_window[paylines[line][1]][1].getName())){
-			combination = 2;
-		}	
-
-		if(combination>1) {
-			//Get the payment for the n-combination of specific symbol
-			line_rule_prize = paytable[getIndex()][combination-1];
-		}
-			
-		return line_rule_prize;
-    }
-
-
-  
-	private boolean isThereWild() {
-    	boolean flag = false;
-    	outerloop:  
-		for(int x=0; x<this.reels; x++) {
-			if(this.slot_window[paylines[line][x]][x].getName().equalsIgnoreCase("symb_wild")) {
-				wild_symbol = this.slot_window[paylines[line][x]][x];
-				flag = true;
-				break outerloop;
-			}
-		}  	
-    	return flag;
-    }
-    
-    private void findCoordsOfSymbols() {
-		for(int x=0; x<this.reels; x++) {
-			if(this.slot_window[this.paylines[line][x]][x].getName().equalsIgnoreCase("symb_wild")) {
-				coords.add(new Coordinates(this.paylines[line][x],x));
-			}
-		}
-    	
-	}
-    
-    private void WildTransformation(boolean transformation) {
-    	for(Coordinates coordinations : coords) {
-    		
-    		//coords of wild
-    		int temp_y = coordinations.getY();
-    		int temp_x = coordinations.getX();
-    		
-    		if(transformation) {
-    			//Set the index_before symbol as wild except for scatter   			
-    			//if it's not scatter then substitute
-    			if(!slot_window[this.paylines[line][temp_x-1]][temp_x-1].getName().equalsIgnoreCase("scatter_s")) {
-            		slot_window[temp_y][temp_x] = slot_window[this.paylines[line][temp_x-1]][temp_x-1]; 
-    			} 			
-    		}
-    		else {
-    			//Set the index before as wild
-        		slot_window[temp_y][temp_x] = wild_symbol; 	
-    		}   				
-    	}
-  	}
-
-
-
-	@SuppressWarnings("unused")
-	private double getScreenRuleCombinationPrize() {
-		double screen_rule_prize = 0;
-		int mult_scatter = 1,counter = 0;
-		Symbol temp_scatter = null;
-		int[] counters = new int[] {0,0,0,0,0};
-		for(int x=0; x<this.reels; x++) {
-			for(int y=0; y<this.rows; y++) {
-				if((slot_window[y][x].getName().equalsIgnoreCase("scatter_s"))) {
-					temp_scatter = slot_window[y][x];
-					counters[x]++;
+	private void saveWildCoordinates() {
+		for(int i=0; i<this.m; i++) {
+			for(int j=0; j<this.n; j++) { 
+				if(this.W[i][j].getType().equalsIgnoreCase("Wild")) {
+					coords.add(new Coordinates(i, j));	
+					wild = this.W[i][j];
 				}
 			}
-			if(counters[x]>0) {	
-				mult_scatter *= counters[x];
-				counter++;
-			}
 		}	
-		if(counter>0) return (paytable[Symbol.indices.get(temp_scatter.getName())][counter-1]*mult_scatter*totalbet);
-		else return 0;	
-    }
-
-	private int getIndex() {
-		//Get the symbol that set the pay out
-		Symbol first_symbol_in_line = slot_window[paylines[line][0]][0];
-		//Find the symbol in hashmap to get the index-row in paytable
-		return (Symbol.indices.get(first_symbol_in_line.getName()));
 	}
 
+	private double getOnPaylinePrize() {
+    	double total_payline_prize = 0;
+    	for(int i=0; i<L.length; i++) {
+    		if(!W[L[i][0]][0].getType().equalsIgnoreCase("Scatter")) {
+	        	int aPair = 0;
+		    	for(int j=0; j<this.n-1; j++) {
+		    		Symbol current_symbol = W[L[i][j]][j];
+		    		Symbol next_symbol = W[L[i][j+1]][j+1];
+					if(current_symbol.getName().equalsIgnoreCase(next_symbol.getName()) || next_symbol.getType().equalsIgnoreCase("Wild")) {
+						W[L[i][j+1]][j+1] = current_symbol;
+						aPair++;
+					}
+					else
+						break;   			
+		    	}
+		
+				// Get the payment for the n-combination of specific symbol
+		    	if(aPair>0)
+		    		total_payline_prize += (P[getIndex(i)][aPair]*this.lineBet);  	
+		    	
+		    	//int coins = -1;
+		    	//if(coins!=-1) {
+		    		//	WindowPrinter printer = new WindowPrinter();
+		    		//	printer.printAll(W, totalBet, 0.0, (int) (coins+0.0));
+		    		//}
+		    	// Retrieve wild symbols on window instance
+		    	retrieveWildSymbols();	
+    		}
+    	}
+		return total_payline_prize;
+    }
+	
+	private int getIndex(int aLine) {
+		int line = aLine;
+		
+		//Get the symbol that set the pay out
+		Symbol first_symbol_in_line = W[L[line][0]][0];
+		
+		//Find the symbol in hashmap to get the index-row in paytable
+		return (Symbol.Map.get(first_symbol_in_line.getName()));
+	}
+	
+	private void retrieveWildSymbols() {
+		for(Coordinates coord:coords) 
+			this.W[coord.getX()][coord.getY()] = wild;
+	}
 
+	private double getScreenRuleCombinationPrize() {
+		int times = 1, aPair = 0;
+		Symbol temp_scatter = null;
+		int[] C = new int[] {0,0,0,0,0};
+		for(int i=0; i<this.n; i++) {
+			for(int j=0; j<this.m; j++) {
+				if((W[j][i].getType().equalsIgnoreCase("Scatter"))) {
+					temp_scatter = W[j][i];
+					C[i]++;
+				}
+			}
+			if(C[i]>0) {	
+				times *= C[i];
+				aPair++;
+			}
+		}	
+		if(aPair>0) return (P[Symbol.Map.get(temp_scatter.getName())][aPair-1]*times*totalBet);
+		else return 0;	
+    }
 }

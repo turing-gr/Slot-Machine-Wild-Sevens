@@ -3,17 +3,17 @@ import java.util.ArrayList;
 
 public class SlotMachine {
 
-    private ArrayList<Reel> slot_machine;
+    private ArrayList<Reel> R;
 
     public SlotMachine(){
-        this.slot_machine = new ArrayList<Reel>();
+        this.R = new ArrayList<Reel>();
     }
 
     public void addCurrentReelInModel(Reel reel){
-        this.slot_machine.add(reel);
+        this.R.add(reel);
     }
 
     public ArrayList<Reel> getSlotMachine(){
-        return this.slot_machine;
+        return this.R;
     }
 }

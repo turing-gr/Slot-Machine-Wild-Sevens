@@ -22,7 +22,7 @@ public class Parser {
                     String[] distinct_symbols = the_line.split(csv_splittted_by);
                     
                     //add the symbols in hashmap
-                    for(int i=0; i<distinct_symbols.length; i++) Symbol.indices.put(distinct_symbols[i],i);
+                    for(int i=0; i<distinct_symbols.length; i++) Symbol.Map.put(distinct_symbols[i],i);
                 	the_line = br.readLine();
                     flag = false;
                 }
@@ -35,11 +35,14 @@ public class Parser {
                 //Create symbols with the info from .csv
                 for(int i=0; i<symbols.length; i++){
                     switch(symbols[i]){
-                        case("wild"):    reel.insertSymbolInCurrentReel(new Symbol(i,symbols[i],"Wild"));
+                        case("symb_wild"):    
+                        	reel.insertSymbolInCurrentReel(new Symbol(i,symbols[i],"Wild"));
                             break;
-                        case("scatter"): reel.insertSymbolInCurrentReel(new Symbol(i,symbols[i],"Scatter"));
+                        case("sym_scatt"): 
+                        	reel.insertSymbolInCurrentReel(new Symbol(i,symbols[i],"Scatter"));
                             break;
-                        default:         reel.insertSymbolInCurrentReel(new Symbol(i,symbols[i],"Symbol"));
+                        default:         
+                        	reel.insertSymbolInCurrentReel(new Symbol(i,symbols[i],"Symbol"));
                             break;
                     }
                 }       

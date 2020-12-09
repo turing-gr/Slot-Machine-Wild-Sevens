@@ -4,8 +4,8 @@ import java.util.HashMap;
 public class Symbol {
 	
     private String name,type;
-    public static HashMap<String,Integer> indices = new HashMap<String,Integer>();
     private int id;
+    public static HashMap<String,Integer> Map = new HashMap<String,Integer>();
 
     public Symbol(int anId, String aName, String aType){
     	this.id = anId;
@@ -30,14 +30,14 @@ public class Symbol {
     }
 
     public HashMap<String, Integer> getIndices() {
-	return indices;
+    	return Map;
     }
 
     public int getId() {
-	return id;
+    	return id;
     }
 
     public void setId(int id) {
-	this.id = id;
+    	this.id = id;
     } 
 }

@@ -2,21 +2,21 @@ package com.arseniumn.slots.model;
 import java.util.ArrayList;
 
 public class Reel {
-    private  ArrayList<Symbol> reels;
+    private  ArrayList<Symbol> reel;
 
     public Reel(){
-       this.reels = new ArrayList<Symbol>();
+       this.reel = new ArrayList<Symbol>();
     }
 
     public void insertSymbolInCurrentReel(Symbol symbol){
-        this.reels.add(symbol);
+        this.reel.add(symbol);
     }
 
     public Symbol getSymbolFromReel(int index){
-        return this.reels.get(index);
+        return this.reel.get(index);
     }
 
-    public ArrayList<Symbol> getReels(){
-        return this.reels;
+    public ArrayList<Symbol> getReel(){
+        return this.reel;
     }
 }
