@@ -16,12 +16,12 @@ public class Parser {
 
             while ((the_line = br.readLine()) != null) { 
    
-                // we need to read all the distinct symbols
+                // Read all the distinct symbols
                 if(flag) {
                 	 //Use comma as separator
                     String[] distinct_symbols = the_line.split(csv_splittted_by);
                     
-                    //add the symbols in hashmap
+                    // Add the symbols in hashmap
                     for(int i=0; i<distinct_symbols.length; i++) Symbol.Map.put(distinct_symbols[i],i);
                 	the_line = br.readLine();
                     flag = false;
@@ -29,10 +29,10 @@ public class Parser {
                 
                 String[] symbols = the_line.split(csv_splittted_by);
 
-                //Create the reels -> the current line from csv represents a reel
+                // Create the reels -> the current line from .csv file represents a reel
                 Reel reel = new Reel();
 
-                //Create symbols with the info from .csv
+                // Create symbols with the info from .csv file
                 for(int i=0; i<symbols.length; i++){
                     switch(symbols[i]){
                         case("symb_wild"):    
@@ -46,7 +46,7 @@ public class Parser {
                             break;
                     }
                 }       
-                //Add the current reel in slot machine model          
+                // Add the current reel in slot machine model          
                 slotMachine.addCurrentReelInModel(reel);
             }
         } catch (IOException e) {

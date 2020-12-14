@@ -17,15 +17,9 @@ public class Main {
         //Slot machine model creation
         SlotMachine slot_machine = new SlotMachine();
         
-        
         //Create parser and insert the data
         Parser parser = new Parser();
         parser.parse(slot_machine);
-       
-        for(int i=0; i<slot_machine.getSlotMachine().size(); i++){
-        	System.out.println(slot_machine.getSlotMachine().get(i).getReel().size());
-        }
-        
 
         //Create the slot window where the user plays (reels,rows)
         SlotWindow slot_window = new SlotWindow(5, 3, TOTAL_BET, LINEBET);
@@ -36,7 +30,7 @@ public class Main {
 		boolean choice = true;
 		Scanner in = new Scanner(System.in);
 		
-        while(choice) {      	
+        while(choice) {     	
 			System.out.println("====================================");
 			System.out.println("|| Menu || Welcome to Wild Sevens ||");
 			System.out.println("====================================");
@@ -47,16 +41,16 @@ public class Main {
 			int mode = in.nextInt();
 			//Spin and Win
 			if(mode==1) {
-		    		//substract the totalbet
 		    		COINS -= TOTAL_BET;
 		    		
-		    		//play the game
+		    		// Play the game
 		    		slot_window.generateStops(slot_machine);
 		    		temp_reward = (long) slot_window.runSimulation(COINS);      		
 		    		
-		    		//add the temp_reward
+		    		// Add the temp_reward
 		    		COINS += temp_reward;
-			}	        	
+			}	   
+			// Monte Carlo simulation
 		    else if(mode==2) {
 		    		System.out.print("Give the number of steps:");
 		    		long NUMBER_OF_STEPS = in.nextLong();
@@ -68,7 +62,7 @@ public class Main {
 		    		System.out.println("RTP = "+(double) sum/(NUMBER_OF_STEPS*NUMBER_OF_PAYLINES) * 100+"%");
 		    		sum =0;
 		    }
-		    else if(mode ==3) {
+		    else if(mode==3) {
 		    		choice = false;
 		    		System.out.println("See ya!");
 		    }

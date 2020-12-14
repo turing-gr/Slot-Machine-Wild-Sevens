@@ -95,7 +95,22 @@ public class SlotWindow {
     	}
     	return reward;
     }
-
+	
+	private int getIndex(int aLine) {
+		int line = aLine;
+		
+		//Get the symbol that set the pay out
+		Symbol first_symbol_in_line = W[L[line][0]][0];
+		
+		//Find the symbol in hashmap to get the index-row in paytable
+		return (Symbol.Map.get(first_symbol_in_line.getName()));
+	}
+    
+    private void retrieveWildSymbols() {
+		for(Coordinates coord:coords) 
+			this.W[coord.getX()][coord.getY()] = wild;
+	}
+    
 	private void saveWildCoordinates() {
 		for(int i=0; i<this.m; i++) {
 			for(int j=0; j<this.n; j++) { 
@@ -126,33 +141,13 @@ public class SlotWindow {
 				// Get the payment for the n-combination of specific symbol
 		    	if(aPair>0)
 		    		total_payline_prize += (P[getIndex(i)][aPair]*this.lineBet);  	
-		    	
-		    	//int coins = -1;
-		    	//if(coins!=-1) {
-		    		//	WindowPrinter printer = new WindowPrinter();
-		    		//	printer.printAll(W, totalBet, 0.0, (int) (coins+0.0));
-		    		//}
+
 		    	// Retrieve wild symbols on window instance
 		    	retrieveWildSymbols();	
     		}
     	}
 		return total_payline_prize;
     }
-	
-	private int getIndex(int aLine) {
-		int line = aLine;
-		
-		//Get the symbol that set the pay out
-		Symbol first_symbol_in_line = W[L[line][0]][0];
-		
-		//Find the symbol in hashmap to get the index-row in paytable
-		return (Symbol.Map.get(first_symbol_in_line.getName()));
-	}
-	
-	private void retrieveWildSymbols() {
-		for(Coordinates coord:coords) 
-			this.W[coord.getX()][coord.getY()] = wild;
-	}
 
 	private double getScreenRuleCombinationPrize() {
 		int times = 1, aPair = 0;
